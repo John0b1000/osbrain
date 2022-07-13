@@ -240,9 +240,11 @@ class Agent:
         serializer=None,
         transport=None,
         attributes=None,
+        data=None
     ):
         self._uuid = unique_identifier()
         self.name = name
+        self.data = data
         if not self.name:
             self.name = self._uuid.decode()
 
@@ -276,7 +278,7 @@ class Agent:
 
         for key, value in attributes.items():
             if hasattr(self, key):
-                raise KeyError('Agent already has "%s" attribute!' % key)
+               raise KeyError('Agent already has "%s" attribute!' % key)
             setattr(self, key, value)
 
     def on_init(self):
@@ -1924,6 +1926,7 @@ class AgentProcess(multiprocessing.Process):
     def __init__(
         self,
         name='',
+        data=None,
         nsaddr=None,
         addr=None,
         serializer=None,
@@ -1933,6 +1936,7 @@ class AgentProcess(multiprocessing.Process):
     ):
         super().__init__()
         self.name = name
+        self.data = data
         self._daemon = None
         self._host, self.port = address_to_host_port(addr)
         if self.port is None:
@@ -1959,6 +1963,7 @@ class AgentProcess(multiprocessing.Process):
             self.base = cloudpickle.loads(self.base)
             self.agent = self.base(
                 name=self.name,
+                data=self.data,
                 host=self._host,
                 serializer=self._serializer,
                 transport=self._transport,
@@ -1969,6 +1974,7 @@ class AgentProcess(multiprocessing.Process):
             return
 
         self.name = self.agent.name
+        self.data = self.agent.data
         uri = self._daemon.register(self.agent)
         try:
             ns.register(self.name, uri, safe=True)
@@ -2047,6 +2053,7 @@ class AgentProcess(multiprocessing.Process):
 
 def run_agent(
     name='',
+    data=None,
     nsaddr=None,
     addr=None,
     base=Agent,
@@ -2085,6 +2092,7 @@ def run_agent(
         nsaddr = os.environ.get('OSBRAIN_NAMESERVER_ADDRESS')
     agent = AgentProcess(
         name=name,
+        data=data,
         nsaddr=nsaddr,
         addr=addr,
         base=base,

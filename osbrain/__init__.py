@@ -30,7 +30,7 @@ else:
     config['IPC_DIR'].mkdir(exist_ok=True, parents=True)
 
 
-__version__ = '0.6.5'
+__version__ = '0.6.6'
 
 from .address import AgentAddress  # isort:skip
 from .address import SocketAddress  # isort:skip
